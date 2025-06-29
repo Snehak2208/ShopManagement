@@ -316,9 +316,6 @@ node test-sales-model.js
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📄 License
-
-This project is licensed under the ISC License.
 
 ## 🤝 Support
 
@@ -328,17 +325,6 @@ If you encounter any issues or have questions:
 2. Review the existing documentation
 3. Create an issue with detailed information
 4. Include error messages and steps to reproduce
-
-## 🎯 Future Enhancements
-
-- [ ] Email notifications
-- [ ] Advanced reporting and analytics
-- [ ] Multi-shop support
-- [ ] Inventory alerts
-- [ ] Payment integration
-- [ ] Mobile app
-- [ ] Barcode scanning
-- [ ] Export functionality (PDF/Excel)
 
 ---
 
