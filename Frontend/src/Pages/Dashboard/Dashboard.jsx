@@ -13,6 +13,7 @@ import Aside from '../../Components/Aside/Aside';
 const Dashboard = () => {
 
     const isLogin = useSelector((state) => state.login.loginStatus)
+    const userRole = useSelector((state) => state.user.userRole)
     const navigate = useNavigate();
 
     // get all products from store:
@@ -31,7 +32,7 @@ const Dashboard = () => {
             credentials: 'include' //!important
         };
 
-        const response = await fetch(`${baseUrl}/products`, requestOptions);
+        const response = await fetch(`${baseUrl}/products/my`, requestOptions);
         const result = await response.json();
         if (result.status) {
             console.log("Product recived succesfully");
@@ -48,11 +49,14 @@ const Dashboard = () => {
         // check if login:
         if (!isLogin) {
             navigate("/login")
-        } else if (products.length <= 0 && !isFetchFinished) {
+        } else if (userRole === 'customer') {
+            // Redirect customers to their dashboard
+            navigate("/customer")
+        } else if (userRole === 'shopkeeper' && products.length <= 0 && !isFetchFinished) {
             //asyc fetch data and save result to store
             fetchProducts();
         }
-    }, [products])
+    }, [products, userRole])
 
 
     const showAdd = () => {
@@ -84,8 +88,8 @@ const Dashboard = () => {
         document.getElementById('delete_modal').showModal();
     }
 
-    // exec only if login:
-    return (isLogin &&
+    // exec only if login and shopkeeper:
+    return (isLogin && userRole === 'shopkeeper' &&
         <div className='md:w-[80%] md:mx-auto'>
 
             {/* main */}
@@ -97,7 +101,7 @@ const Dashboard = () => {
                         <label htmlFor="sidebar_drawer" className="drawer-button lg:hidden">
                             <Bars3BottomLeftIcon className='w-6 h-6' />
                         </label>
-                        <h2 className='text-xl'>Products</h2>
+                        <h2 className='text-xl'>My Products</h2>
                         {/* search bar */}
                         <form action="" className='hidden md:flex items-center w-1/2'>
                             <input type="text" placeholder="Search Procuct" className="input input-bordered rounded-full h-10 lg:w-full" />

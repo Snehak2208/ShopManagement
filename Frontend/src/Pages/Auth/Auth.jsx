@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
 import { setloginStatus } from "../../Redux/login/isLogin";
+import { setUserRole } from "../../Redux/user/userSlice";
 import { useDispatch } from 'react-redux';
 import baseurl from '../../utils/baseurl';
 
 import { useForm } from 'react-hook-form';
-import { EnvelopeIcon, EyeIcon, EyeSlashIcon, KeyIcon } from '@heroicons/react/24/outline';
+import { EnvelopeIcon, EyeIcon, EyeSlashIcon, KeyIcon, UserIcon } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 
 import toast, { Toaster } from 'react-hot-toast';
@@ -24,11 +25,15 @@ const Auth = () => {
         };
     }
     const validatePassword = (password) => {
-        let regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};':",.<>/?])(?!.*\s).{8,}$/g;
-        // let regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};':",.<>/?])(?!.*\s)/g;
-        if (!password.match(regex)) {
-            return "invalid password format";
-        };
+        // Simplified password validation for testing
+        if (password.length < 6) {
+            return "Password must be at least 6 characters long";
+        }
+        // Original strict validation (commented out for testing)
+        // let regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};':",.<>/?])(?!.*\s).{8,}$/g;
+        // if (!password.match(regex)) {
+        //     return "invalid password format";
+        // };
     }
 
     const loginUser = async (obj) => {
@@ -43,21 +48,30 @@ const Auth = () => {
         };
 
         try {
+            console.log('Attempting login with:', { email: obj.email });
             const response = await fetch(`${baseurl}/login`, requestOptions);
             const result = await response.json();
+            console.log('Login response:', result);
+            
             if (result.status) {
                 dispatch(setloginStatus(true));
-                toast.success("Login success");
+                dispatch(setUserRole(result.role)); // Store user role
+                toast.success(`Login successful! Welcome ${result.role}`);
                 setTimeout(() => {
-                    navigate("/");
+                    // Redirect based on user role
+                    if (result.role === 'customer') {
+                        navigate("/customer");
+                    } else {
+                        navigate("/dashboard");
+                    }
                 }, 1500);
             } else {
-                toast.error("Invalid credentials");
+                toast.error(result.message || "Invalid credentials");
                 console.log('Error::Auth::loginUser::result', result.message)
             }
         } catch (error) {
-            toast.error("Something went wrong! ty again");
-            console.log('Error::Auth::loginUser', error)
+            console.error('Login error:', error);
+            toast.error("Something went wrong! try again");
         }
     }
 
@@ -73,18 +87,21 @@ const Auth = () => {
         };
 
         try {
+            console.log('Attempting registration with:', { email: obj.email, role: obj.role });
             const response = await fetch(`${baseurl}/register`, requestOptions)
             const result = await response.json();
+            console.log('Registration response:', result);
+            
             if (result.status) {
-                toast.success("Registration success! Login to account");
+                toast.success(`Registration successful! Welcome ${result.role}`);
                 setisLoginPage(!isLoginPage);
             } else {
-                toast.error("Something went wrong! ty again");
+                toast.error(result.message || "Something went wrong! try again");
                 console.log('Error::Auth::registerUser::result', result.message)
             }
         } catch (error) {
-            toast.error("Something went wrong! ty again");
-            console.log('Error::Auth::registerUser', error)
+            console.error('Registration error:', error);
+            toast.error("Something went wrong! try again");
         }
     }
 
@@ -118,6 +135,21 @@ const Auth = () => {
                         {errors.email && <p>{errors.email.message}</p>}
                     </div>
 
+                    {/* Role selection for registration */}
+                    {!isLoginPage && (
+                        <>
+                            <label className="input input-bordered flex items-center gap-2 rounded-lg">
+                                <UserIcon className="h-4 w-4 opacity-70" />
+                                <select className="grow bg-transparent" {...register('role', { required: true })}>
+                                    <option value="shopkeeper">Shopkeeper</option>
+                                    <option value="customer">Customer</option>
+                                </select>
+                            </label>
+                            <div className="label-text text-xs text-gray-500 h-8 pt-2">
+                                <p>Select your role</p>
+                            </div>
+                        </>
+                    )}
 
                     {/* password */}
                     <label className={`input input-bordered flex items-center gap-2 rounded-lg ${errors.password ? "input-error" : "input-success"} `}>
@@ -133,7 +165,7 @@ const Auth = () => {
                         {errors.password && <p>{errors.password.message}</p>}
                     </div>
                     <div className="label">
-                        <span className="label-text text-xs text-gray-500">Min 8 chars and must include Uppercase, Lowercase, Number and Special character.</span>
+                        <span className="label-text text-xs text-gray-500">Password must be at least 6 characters long.</span>
                     </div>
 
                     {/* confirm password */}

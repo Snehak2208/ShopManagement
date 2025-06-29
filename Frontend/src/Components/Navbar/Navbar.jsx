@@ -1,7 +1,12 @@
-import { BuildingStorefrontIcon, MoonIcon, SunIcon } from '@heroicons/react/24/outline'
+import { BuildingStorefrontIcon, MoonIcon, SunIcon, UserCircleIcon } from '@heroicons/react/24/outline'
 import React from 'react'
+import { useSelector } from 'react-redux'
+import { useLocation } from 'react-router-dom'
 
 const Navbar = () => {
+    const userRole = useSelector((state) => state.user.userRole);
+    const location = useLocation();
+    
     const toggleDarkMode = () => {
         const mode = document.body.parentElement.getAttribute("data-theme");
         if (mode === "dark") {
@@ -12,6 +17,30 @@ const Navbar = () => {
             localStorage.setItem("isDarkMode", "true")
         }
     }
+
+    const getPageTitle = () => {
+        switch(location.pathname) {
+            case '/':
+                return 'Login';
+            case '/login':
+                return 'Login';
+            case '/dashboard':
+                return userRole === 'shopkeeper' ? 'My Products' : 'Dashboard';
+            case '/customer':
+                return 'Browse Products';
+            case '/purchases':
+                return 'Purchase History';
+            case '/newSales':
+                return 'New Sales';
+            case '/viewSales':
+                return 'View Sales';
+            case '/profile':
+                return 'Profile';
+            default:
+                return 'Dashboard';
+        }
+    }
+
     return (
         <div className="navbar h-10  rounded-md shadow-md mb-3">
             <div className='md:w-[80%] md:mx-auto flex justify-between items-center'>
@@ -21,9 +50,17 @@ const Navbar = () => {
                     </div>
                     <a className="text-xl font-bold">Shop Inventory Management</a>
                 </div>
-                <div className='flex items-center px-2'>
-                    <SunIcon onClick={toggleDarkMode} className='dark:hidden h-6 w-6' />
-                    <MoonIcon onClick={toggleDarkMode} className='hidden dark:block h-6 w-6' />
+                <div className='flex items-center gap-4 px-2'>
+                    {userRole && (
+                        <div className="flex items-center gap-2 text-sm">
+                            <UserCircleIcon className="w-4 h-4" />
+                            <span className="capitalize">{userRole}</span>
+                            <span className="text-gray-400">|</span>
+                            <span className="text-gray-600">{getPageTitle()}</span>
+                        </div>
+                    )}
+                    <SunIcon onClick={toggleDarkMode} className='dark:hidden h-6 w-6 cursor-pointer' />
+                    <MoonIcon onClick={toggleDarkMode} className='hidden dark:block h-6 w-6 cursor-pointer' />
                 </div>
             </div>
         </div>
