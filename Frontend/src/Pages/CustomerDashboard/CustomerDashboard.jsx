@@ -6,6 +6,7 @@ import baseUrl from '../../utils/baseurl';
 import { setProducts } from '../../Redux/products/productSlice';
 import Aside from '../../Components/Aside/Aside';
 import toast, { Toaster } from 'react-hot-toast';
+import { addToCart } from '../../Redux/cart/cartSlice';
 
 const CustomerDashboard = () => {
     const isLogin = useSelector((state) => state.login.loginStatus)
@@ -75,6 +76,20 @@ const CustomerDashboard = () => {
         } catch (error) {
             console.error('Purchase error:', error);
             toast.error("Something went wrong! try again");
+        }
+    }
+
+    // Add to cart function
+    const handleAddToCart = async (productId, productName) => {
+        try {
+            const resultAction = await dispatch(addToCart({ productId, quantity: 1 }));
+            if (addToCart.fulfilled.match(resultAction)) {
+                toast.success(`${productName} added to cart!`);
+            } else {
+                toast.error(resultAction.payload || 'Failed to add to cart');
+            }
+        } catch (error) {
+            toast.error('Failed to add to cart');
         }
     }
 
@@ -156,6 +171,13 @@ const CustomerDashboard = () => {
                                         >
                                             <ShoppingCartIcon className="w-4 h-4" />
                                             {product.p_stock > 0 ? 'Buy Now' : 'Out of Stock'}
+                                        </button>
+                                        <button
+                                            className="btn btn-outline btn-sm ml-2"
+                                            onClick={() => handleAddToCart(product._id, product.p_name)}
+                                            disabled={product.p_stock <= 0}
+                                        >
+                                            Add to Cart
                                         </button>
                                     </div>
                                 </div>

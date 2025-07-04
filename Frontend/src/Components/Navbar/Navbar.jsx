@@ -1,11 +1,13 @@
 import { BuildingStorefrontIcon, MoonIcon, SunIcon, UserCircleIcon } from '@heroicons/react/24/outline'
+import { ShoppingCartIcon } from '@heroicons/react/24/solid'
 import React from 'react'
 import { useSelector } from 'react-redux'
-import { useLocation } from 'react-router-dom'
+import { useLocation, Link } from 'react-router-dom'
 
 const Navbar = () => {
     const userRole = useSelector((state) => state.user.userRole);
     const location = useLocation();
+    const cartItems = useSelector((state) => state.cart.items);
     
     const toggleDarkMode = () => {
         const mode = document.body.parentElement.getAttribute("data-theme");
@@ -58,6 +60,16 @@ const Navbar = () => {
                             <span className="text-gray-400">|</span>
                             <span className="text-gray-600">{getPageTitle()}</span>
                         </div>
+                    )}
+                    {userRole === 'customer' && (
+                    <Link to="/cart" className="relative">
+                        <ShoppingCartIcon className="w-6 h-6 text-gray-700" />
+                        {cartItems && cartItems.length > 0 && (
+                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1">
+                                {cartItems.length}
+                            </span>
+                        )}
+                    </Link>
                     )}
                     <SunIcon onClick={toggleDarkMode} className='dark:hidden h-6 w-6 cursor-pointer' />
                     <MoonIcon onClick={toggleDarkMode} className='hidden dark:block h-6 w-6 cursor-pointer' />

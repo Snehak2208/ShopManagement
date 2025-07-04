@@ -9,6 +9,7 @@ import ModalAdd from '../../Components/Modal/ModalAdd';
 import baseUrl from '../../utils/baseurl';
 import { setProducts } from '../../Redux/products/productSlice';
 import Aside from '../../Components/Aside/Aside';
+import { useRef } from 'react';
 
 const Dashboard = () => {
 
@@ -44,6 +45,27 @@ const Dashboard = () => {
         setisFetchFinished(true);
     }
 
+    const [customerSales, setCustomerSales] = useState([]);
+    const [showCustomerModal, setShowCustomerModal] = useState(false);
+    const [modalProductName, setModalProductName] = useState('');
+    const fetchCustomerSales = async (productId, productName) => {
+        setModalProductName(productName);
+        setShowCustomerModal(true);
+        setCustomerSales([]);
+        try {
+            const res = await fetch(`${baseUrl}/product/${productId}/customersales`, {
+                credentials: 'include',
+            });
+            const data = await res.json();
+            if (data.status) {
+                setCustomerSales(data.sales);
+            } else {
+                setCustomerSales([]);
+            }
+        } catch (e) {
+            setCustomerSales([]);
+        }
+    };
 
     useEffect(() => {
         // check if login:
@@ -155,6 +177,10 @@ const Dashboard = () => {
                                                 <button className='btn btn-error btn-sm mx-2' onClick={() => {
                                                     showDelete(elem._id)
                                                 }}>Delete</button>
+
+                                                <button className='btn btn-outline btn-sm ml-2' onClick={() => fetchCustomerSales(elem._id, elem.p_name)}>
+                                                    View Customer History
+                                                </button>
                                             </td>
                                         </tr>
                                     )
@@ -180,6 +206,40 @@ const Dashboard = () => {
             <ModalAdd id="add_modal" title="Add Product" fetchProducts={fetchProducts} />
             <ModalDelete id="delete_modal" pid={pid} title="Are u sure to delete?" fetchProducts={fetchProducts}/>
             <ModalUpdate id="update_modal" title="Update Details" updateObj={updateObj} fetchProducts={fetchProducts} />
+
+            {/* Customer History Modal */}
+            {showCustomerModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl relative">
+                        <button className="absolute top-2 right-2 text-gray-500 hover:text-black" onClick={() => setShowCustomerModal(false)}>&times;</button>
+                        <h3 className="text-xl font-bold mb-4">Customer History for <span className="text-blue-700">{modalProductName}</span></h3>
+                        {customerSales.length === 0 ? (
+                            <p className="text-gray-600">No sales found for this product.</p>
+                        ) : (
+                            <table className="w-full border mb-2 bg-white text-black">
+                                <thead>
+                                    <tr className="bg-gray-200">
+                                        <th className="p-2">Customer Email</th>
+                                        <th className="p-2">Quantity</th>
+                                        <th className="p-2">Total</th>
+                                        <th className="p-2">Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {customerSales.map((sale, idx) => (
+                                        <tr key={idx} className="border-t">
+                                            <td className="p-2">{sale.customerEmail}</td>
+                                            <td className="p-2">{sale.quantity}</td>
+                                            <td className="p-2">₹{sale.total}</td>
+                                            <td className="p-2">{new Date(sale.date).toLocaleString()}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

@@ -5,6 +5,7 @@ import './index.css'
 import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements, Navigate } from 'react-router-dom';
 import Dashboard from './Pages/Dashboard/Dashboard.jsx';
 import NewSales from './Pages/NewSales/NewSales.jsx';
+import Cart from './Pages/Cart';
 
 import { Provider } from 'react-redux'
 import { store } from './Redux/Store.js';
@@ -27,6 +28,7 @@ const router = createBrowserRouter(
       <Route path="/profile" element={<Profile/>} />
       <Route path="/customer" element={<CustomerDashboard />} />
       <Route path="/purchases" element={<PurchaseHistory />} />
+      <Route path="/cart" element={<Cart />} />
     </Route>
   )
 );

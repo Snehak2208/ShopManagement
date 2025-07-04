@@ -1,5 +1,6 @@
 import Product from "../Models/productModal.js";
 import User from "../Models/userModel.js";
+import Sale from '../Models/salesModal.js';
 
 // Get all products (for customers to browse)
 export const getAllProductsController = async (req, res) => {
@@ -104,3 +105,24 @@ export const deleteProductController = async(req, res) => {
         return res.status(404).json({ status:false, message: "failed to delete product!", error })
     }
 }
+
+// Get all customer sales for a product (for shopkeeper)
+export const getProductCustomerSalesController = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const shopkeeperId = req.user.userId;
+    // Find all sales for this product and shopkeeper
+    const sales = await Sale.find({ productId, shopkeeperId })
+      .populate('customerId', 'email')
+      .sort({ purchaseDate: -1 });
+    const result = sales.map(sale => ({
+      customerEmail: sale.customerId?.email || 'N/A',
+      quantity: sale.quantity,
+      total: sale.totalPrice,
+      date: sale.purchaseDate,
+    }));
+    res.status(200).json({ status: true, sales: result });
+  } catch (error) {
+    res.status(500).json({ status: false, message: 'Failed to get customer sales', error });
+  }
+};
