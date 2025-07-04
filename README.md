@@ -104,7 +104,7 @@ Create a `.env` file in the `Backend` directory:
 ```env
 MONGODB_URI=mongodb://localhost:27017/shop-inventory
 # OR for MongoDB Atlas:
-# MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/shop-inventory
+# MONGODB_URI
 
 JWT_SECRET_KEY=your-super-secret-jwt-key-here
 CORS_ORIGIN=http://localhost:5173
